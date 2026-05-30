@@ -56,6 +56,13 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
+    - name: List APK files
+      run: |
+        echo "=== find all APK ==="
+        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null || echo 'NO APK FOUND'
+        echo "=== ls apk dir ==="
+        ls -laR app/build/outputs/apk/ 2>/dev/null || echo 'NO APK DIR'
+
     - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
