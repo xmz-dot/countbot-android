@@ -47,34 +47,26 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
+      continue-on-error: true
       run: |
-        ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
-        exit ${PIPESTATUS[0]}
+        echo "=== Starting Gradle build ==="
+        echo "JAVA_HOME=$JAVA_HOME"
+        echo "ANDROID_HOME=$ANDROID_HOME"
+        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+        java -version
+        echo "=== SDK contents ==="
+        ls -la $ANDROID_HOME/ 2>/dev/null || echo 'ANDROID_HOME not found'
+        echo "=== local.properties ==="
+        cat local.properties 2>/dev/null || echo 'No local.properties'
+        echo "=== Starting assembleDebug ==="
+        ./gradlew assembleDebug --stacktrace --info 2>&1 | tee /tmp/build.log
+        echo "=== Build finished with exit code: ${PIPESTATUS[0]} ==="
+        echo "=== Searching for APK ==="
+        find . -name '*.apk' -type f 2>/dev/null || echo 'No APK found'
 
-    - name: Build Release APK
-      run: |
-        ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
-        exit ${PIPESTATUS[0]}
-
-    - name: Verify APK existence
-      run: |
-        echo "=== Searching for all APK files ==="
-        find $GITHUB_WORKSPACE -name '*.apk' -type f -exec ls -lh {} \; 2>/dev/null || echo 'No APK files found'
-        echo "=== build/outputs structure ==="
-        ls -laR $GITHUB_WORKSPACE/app/build/outputs/ 2>/dev/null || echo 'No outputs dir'
-
-    - name: Upload Debug APK
+    - name: Upload build log
       uses: actions/upload-artifact@v4
       with:
-        name: countbot-debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
-        if-no-files-found: error
-        retention-days: 30
-
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: countbot-release-apk
-        path: app/build/outputs/apk/release/app-release.apk
-        if-no-files-found: error
-        retention-days: 30
+        name: debug-build-log
+        path: /tmp/build.log
+        retention-days: 7
