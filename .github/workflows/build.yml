@@ -43,28 +43,15 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
+    - name: Build all
+      run: ./gradlew assemble --stacktrace
 
-    - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
+    - name: Show APK tree
+      run: find app/build -name '*.apk' -type f 2>/dev/null | head -20
 
-    - name: Find and zip APKs
-      run: |
-        echo "=== Searching for APK files ==="
-        find . -name '*.apk' -type f 2>/dev/null
-        echo "=== Checking standard paths ==="
-        ls -la app/build/outputs/apk/ 2>/dev/null || echo 'No apk dir'
-        ls -la app/build/outputs/ 2>/dev/null || echo 'No outputs dir'
-        echo "=== Checking build dir ==="
-        ls -la app/build/ 2>/dev/null || echo 'No build dir'
-        echo "=== All files in app/build ==="
-        find app/build -type f -name '*.apk' 2>/dev/null || echo 'No APK found in app/build'
-
-    - name: Upload APK files
+    - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
         name: CountBot-APKs
-        path: '**/*.apk'
-        if-no-files-found: warn
+        path: app/build/outputs/apk/
         retention-days: 30
