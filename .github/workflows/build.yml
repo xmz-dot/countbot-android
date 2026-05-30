@@ -53,10 +53,20 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
+    - name: Find and upload APK
+      run: |
+        echo "=== Finding APK files ==="
+        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null
+        echo "=== Checking standard paths ==="
+        ls -la app/build/outputs/apk/release/ 2>/dev/null || echo 'No release dir'
+        echo "=== Copying APK to workspace root ==="
+        find $GITHUB_WORKSPACE -name '*.apk' -type f -exec cp {} $GITHUB_WORKSPACE/ \;
+        ls -la $GITHUB_WORKSPACE/*.apk 2>/dev/null || echo 'No APK in root'
+
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: countbot-release-apk
-        path: app/build/outputs/apk/release/app-release.apk
+        path: '*.apk'
         if-no-files-found: error
         retention-days: 30
