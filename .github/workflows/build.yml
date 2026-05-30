@@ -27,6 +27,9 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Create local.properties
+      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
     - name: Accept Android SDK licenses
       run: yes | sdkmanager --licenses 2>/dev/null || true
 
@@ -47,33 +50,19 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
+      run: |
+        ./gradlew assembleDebug --stacktrace 2>&1 | tee /tmp/build.log
+        exit ${PIPESTATUS[0]}
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
-
-    - name: Collect APK info
       run: |
-        echo "=== APK search results ===" > /tmp/apk-info.txt
-        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null >> /tmp/apk-info.txt || echo 'NO APK FOUND' >> /tmp/apk-info.txt
-        echo "" >> /tmp/apk-info.txt
-        echo "=== app/build/outputs ===" >> /tmp/apk-info.txt
-        ls -laR $GITHUB_WORKSPACE/app/build/outputs/ 2>/dev/null >> /tmp/apk-info.txt || echo 'No outputs dir' >> /tmp/apk-info.txt
-        echo "" >> /tmp/apk-info.txt
-        echo "=== Gradle build directory ===" >> /tmp/apk-info.txt
-        ls -la $GITHUB_WORKSPACE/app/build/ 2>/dev/null >> /tmp/apk-info.txt || echo 'No build dir' >> /tmp/apk-info.txt
-        cat /tmp/apk-info.txt
-
-    - name: Upload APK info
-      uses: actions/upload-artifact@v4
-      with:
-        name: apk-debug-info
-        path: /tmp/apk-info.txt
-        retention-days: 7
+        ./gradlew assembleRelease --stacktrace 2>&1 | tee -a /tmp/build.log
+        exit ${PIPESTATUS[0]}
 
     - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
         name: countbot-apks
         path: app/build/outputs/apk/
+        if-no-files-found: error
         retention-days: 30
