@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var errorLayout: LinearLayout
     private lateinit var btnRetry: MaterialButton
+    private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
 
     companion object {
         private const val TARGET_URL = "http://127.0.0.1:8000"
@@ -114,11 +115,13 @@ class MainActivity : AppCompatActivity() {
                 filePathCallback: ValueCallback<Array<Uri>>?,
                 fileChooserParams: FileChooserParams?
             ): Boolean {
+                fileChooserCallback = filePathCallback
                 val intent = fileChooserParams?.createIntent()
                 try {
                     startActivityForResult(intent, 100)
                 } catch (e: Exception) {
-                    filePathCallback?.onReceiveValue(null)
+                    fileChooserCallback?.onReceiveValue(null)
+                    fileChooserCallback = null
                 }
                 return true
             }
@@ -194,7 +197,16 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100) {
-            // Handle file chooser result
+            val results: Array<Uri>? = if (resultCode == RESULT_OK && data != null) {
+                if (data.clipData != null) {
+                    val count = data.clipData!!.itemCount
+                    Array(count) { i -> data.clipData!!.getItemAt(i).uri }
+                } else {
+                    data.data?.let { arrayOf(it) }
+                }
+            } else null
+            fileChooserCallback?.onReceiveValue(results)
+            fileChooserCallback = null
         }
     }
 

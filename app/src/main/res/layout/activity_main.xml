@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="4dp"
         android:max="100"
-        android:progressDrawable="@android:color/holo_purple"
+        android:progressDrawable="@drawable/progress_bar"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
