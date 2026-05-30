@@ -49,44 +49,42 @@ jobs:
     - name: Build Debug APK
       run: |
         set +e
-        ./gradlew assembleDebug --stacktrace > /tmp/debug-build.log 2>&1
-        EXIT=$?
-        echo "Gradle exit code: $EXIT"
-        tail -50 /tmp/debug-build.log
+        ./gradlew assembleDebug --stacktrace > $RUNNER_TEMP/debug-build.log 2>&1
+        BUILD_EXIT=$?
+        echo "Gradle exit code: $BUILD_EXIT"
+        tail -50 $RUNNER_TEMP/debug-build.log
         set -e
-        if [ $EXIT -ne 0 ]; then exit $EXIT; fi
+        exit $BUILD_EXIT
 
     - name: Build Release APK
       run: |
         set +e
-        ./gradlew assembleRelease --stacktrace > /tmp/release-build.log 2>&1
-        EXIT=$?
-        echo "Gradle exit code: $EXIT"
-        tail -50 /tmp/release-build.log
+        ./gradlew assembleRelease --stacktrace > $RUNNER_TEMP/release-build.log 2>&1
+        BUILD_EXIT=$?
+        echo "Gradle exit code: $BUILD_EXIT"
+        tail -50 $RUNNER_TEMP/release-build.log
         set -e
-        if [ $EXIT -ne 0 ]; then exit $EXIT; fi
+        exit $BUILD_EXIT
 
-    - name: Verify APK files exist
+    - name: Verify APK existence
       run: |
-        echo "=== Full APK search ==="
-        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null
-        echo "=== Standard output paths ==="
-        ls -laR $GITHUB_WORKSPACE/app/build/outputs/apk/ 2>/dev/null || echo 'No apk output dir'
-        echo "=== Build dir structure ==="
-        ls -la $GITHUB_WORKSPACE/app/build/ 2>/dev/null || echo 'No build dir'
+        echo "=== Searching for all APK files ==="
+        find $GITHUB_WORKSPACE -name '*.apk' -type f -exec ls -lh {} \; 2>/dev/null || echo 'No APK files found'
+        echo "=== build/outputs structure ==="
+        ls -laR $GITHUB_WORKSPACE/app/build/outputs/ 2>/dev/null || echo 'No outputs dir'
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
-        name: CountBot-Debug
-        path: app/build/outputs/apk/debug/
+        name: countbot-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
         if-no-files-found: error
         retention-days: 30
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
-        name: CountBot-Release
-        path: app/build/outputs/apk/release/
+        name: countbot-release-apk
+        path: app/build/outputs/apk/release/app-release.apk
         if-no-files-found: error
         retention-days: 30
