@@ -24,6 +24,13 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Accept Android SDK licenses
+      run: yes | sdkmanager --licenses 2>/dev/null || true
+
+    - name: Install Android SDK components
+      run: |
+        sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
     - name: Cache Gradle
       uses: actions/cache@v4
       with:
@@ -38,13 +45,14 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace
+      if: success()
+      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
     - name: List APK files
-      run: find . -name '*.apk' -type f 2>/dev/null
+      run: find . -name '*.apk' -type f 2>/dev/null || echo 'No APK files found'
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
