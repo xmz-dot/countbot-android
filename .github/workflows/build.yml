@@ -52,27 +52,28 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
-    - name: Debug APK output paths
+    - name: Collect APK info
       run: |
-        echo "=== GITHUB_WORKSPACE ==="
-        echo $GITHUB_WORKSPACE
-        echo "=== Full find ==="
-        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null || echo 'NO APK FOUND'
-        echo "=== app/build ==="
-        ls -laR $GITHUB_WORKSPACE/app/build/ 2>/dev/null | head -50
+        echo "=== APK search results ===" > /tmp/apk-info.txt
+        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null >> /tmp/apk-info.txt || echo 'NO APK FOUND' >> /tmp/apk-info.txt
+        echo "" >> /tmp/apk-info.txt
+        echo "=== app/build/outputs ===" >> /tmp/apk-info.txt
+        ls -laR $GITHUB_WORKSPACE/app/build/outputs/ 2>/dev/null >> /tmp/apk-info.txt || echo 'No outputs dir' >> /tmp/apk-info.txt
+        echo "" >> /tmp/apk-info.txt
+        echo "=== Gradle build directory ===" >> /tmp/apk-info.txt
+        ls -la $GITHUB_WORKSPACE/app/build/ 2>/dev/null >> /tmp/apk-info.txt || echo 'No build dir' >> /tmp/apk-info.txt
+        cat /tmp/apk-info.txt
 
-    - name: Package and upload APKs
-      run: |
-        echo "=== Checking standard paths ==="
-        ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo 'No debug dir'
-        ls -la app/build/outputs/apk/release/ 2>/dev/null || echo 'No release dir'
-        echo "=== Zipping all APKs ==="
-        find . -name '*.apk' -type f 2>/dev/null | zip -@ /tmp/countbot-apks.zip
-        ls -lh /tmp/countbot-apks.zip
+    - name: Upload APK info
+      uses: actions/upload-artifact@v4
+      with:
+        name: apk-debug-info
+        path: /tmp/apk-info.txt
+        retention-days: 7
 
     - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
         name: countbot-apks
-        path: /tmp/countbot-apks.zip
+        path: app/build/outputs/apk/
         retention-days: 30
