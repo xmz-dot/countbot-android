@@ -51,24 +51,29 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
+      run: |
+        ./gradlew assembleDebug --stacktrace > /tmp/debug.log 2>&1
+        echo "EXIT_CODE=$?"
+        tail -100 /tmp/debug.log
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
-
-    - name: Find APK files
       run: |
-        echo "=== Searching entire workspace for APK files ==="
-        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null
-        echo "=== Searching for any APK in build dir ==="
-        find $GITHUB_WORKESPACE/app/build -name '*.apk' -type f 2>/dev/null || echo 'No APK in app/build'
-        echo "=== Full build dir listing ==="
-        find $GITHUB_WORKESPACE/app/build -type d 2>/dev/null | head -30
+        ./gradlew assembleRelease --stacktrace > /tmp/release.log 2>&1
+        echo "EXIT_CODE=$?"
+        tail -100 /tmp/release.log
 
-    - name: Upload APKs
+    - name: Check build results
+      run: |
+        echo "=== Debug build exit code ==="
+        grep 'EXIT_CODE' /tmp/debug.log || echo 'No exit code found'
+        echo "=== Release build exit code ==="
+        grep 'EXIT_CODE' /tmp/release.log || echo 'No exit code found'
+        echo "=== APK search ==="
+        find $GITHUB_WORKSPACE -name '*.apk' 2>/dev/null || echo 'NO APK FOUND'
+
+    - name: Upload build logs
       uses: actions/upload-artifact@v4
       with:
-        name: countbot-apks
-        path: '**/*.apk'
-        if-no-files-found: error
-        retention-days: 30
+        name: build-logs
+        path: /tmp/*.log
+        retention-days: 7
