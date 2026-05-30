@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">CountBot</string>
     <string name="loading">加载中...</string>
-    <string name="network_error">网络连接失败</string>
+    <string name="network_error">无法连接到 CountBot</string>
     <string name="retry">重试</string>
-    <string name="no_network">请检查网络连接后重试</string>
+    <string name="no_network">请确保 CountBot 服务已启动（端口 8000）\n或在同一网络下访问</string>
     <string name="exit_title">退出 CountBot</string>
     <string name="exit_message">确定要退出吗？</string>
     <string name="exit_confirm">退出</string>

@@ -151,7 +151,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadTargetUrl() {
         if (isNetworkAvailable()) {
-            webView.loadUrl(TARGET_URL)
+            // Show loading state
+            progressBar.visibility = View.VISIBLE
+            Thread {
+                val reachable = isServiceReachable()
+                runOnUiThread {
+                    if (reachable) {
+                        webView.loadUrl(TARGET_URL)
+                    } else {
+                        showError()
+                    }
+                }
+            }.start()
         } else {
             showError()
         }
@@ -170,9 +181,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun isNetworkAvailable(): Boolean {
         val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
-        val network = connectivityManager.activeNetwork
-        val capabilities = connectivityManager.getNetworkCapabilities(network)
-        return capabilities != null
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun isServiceReachable(): Boolean {
+        return try {
+            val url = java.net.URL(TARGET_URL)
+            val connection = url.openConnection() as java.net.HttpURLConnection
+            connection.connectTimeout = 3000
+            connection.readTimeout = 3000
+            connection.requestMethod = "GET"
+            connection.connect()
+            val code = connection.responseCode
+            connection.disconnect()
+            code in 200..399
+        } catch (e: Exception) {
+            false
+        }
     }
 
     @Deprecated("Deprecated in Java")
