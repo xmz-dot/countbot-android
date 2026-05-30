@@ -52,16 +52,27 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
-    - name: Package APKs
+    - name: Debug APK output paths
       run: |
-        cd app/build/outputs/apk
-        zip -r /tmp/countbot-apks.zip debug/ release/
+        echo "=== GITHUB_WORKSPACE ==="
+        echo $GITHUB_WORKSPACE
+        echo "=== Full find ==="
+        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null || echo 'NO APK FOUND'
+        echo "=== app/build ==="
+        ls -laR $GITHUB_WORKSPACE/app/build/ 2>/dev/null | head -50
+
+    - name: Package and upload APKs
+      run: |
+        echo "=== Checking standard paths ==="
+        ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo 'No debug dir'
+        ls -la app/build/outputs/apk/release/ 2>/dev/null || echo 'No release dir'
+        echo "=== Zipping all APKs ==="
+        find . -name '*.apk' -type f 2>/dev/null | zip -@ /tmp/countbot-apks.zip
         ls -lh /tmp/countbot-apks.zip
-        unzip -l /tmp/countbot-apks.zip
 
     - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
-        name: countbot-apks-v0-9-0
+        name: countbot-apks
         path: /tmp/countbot-apks.zip
         retention-days: 30
