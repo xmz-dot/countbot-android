@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_primary">#FF6200EE</color>
-    <color name="purple_primary_dark">#FF3700B3</color>
-    <color name="purple_secondary">#FF03DAC5</color>
-    <color name="purple_secondary_dark">#FF018786</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="black">#FF000000</color>
-    <color name="error_red">#FFB00020</color>
-    <color name="surface_light">#FFF5F5F5</color>
-    <color name="surface_dark">#FF121212</color>
+    <color name="primary">#6200EE</color>
+    <color name="primary_dark">#3700B3</color>
+    <color name="accent">#03DAC5</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="splash_bg">#6200EE</color>
+    <color name="error_red">#B00020</color>
 </resources>
