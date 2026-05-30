@@ -52,23 +52,18 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
-    - name: Find APK files
+    - name: Find and show APKs
       run: |
         echo "=== All APK files ==="
-        find $GITHUB_WORKSPACE -name '*.apk' -type f -exec ls -lh {} \; 2>/dev/null || echo 'No APK found'
+        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null
+        echo "=== Debug APK dir ==="
+        ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo 'No debug dir'
+        echo "=== Release APK dir ==="
+        ls -la app/build/outputs/apk/release/ 2>/dev/null || echo 'No release dir'
 
-    - name: Upload Debug APK
+    - name: Upload all APKs
       uses: actions/upload-artifact@v4
       with:
-        name: countbot-debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
-        if-no-files-found: error
-        retention-days: 30
-
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: countbot-release-apk
-        path: app/build/outputs/apk/release/app-release.apk
-        if-no-files-found: error
+        name: countbot-apks
+        path: app/build/outputs/apk/
         retention-days: 30
