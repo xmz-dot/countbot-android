@@ -47,14 +47,46 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
+      run: |
+        set +e
+        ./gradlew assembleDebug --stacktrace > /tmp/debug-build.log 2>&1
+        EXIT=$?
+        echo "Gradle exit code: $EXIT"
+        tail -50 /tmp/debug-build.log
+        set -e
+        if [ $EXIT -ne 0 ]; then exit $EXIT; fi
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
+      run: |
+        set +e
+        ./gradlew assembleRelease --stacktrace > /tmp/release-build.log 2>&1
+        EXIT=$?
+        echo "Gradle exit code: $EXIT"
+        tail -50 /tmp/release-build.log
+        set -e
+        if [ $EXIT -ne 0 ]; then exit $EXIT; fi
 
-    - name: Upload APKs
+    - name: Verify APK files exist
+      run: |
+        echo "=== Full APK search ==="
+        find $GITHUB_WORKSPACE -name '*.apk' -type f 2>/dev/null
+        echo "=== Standard output paths ==="
+        ls -laR $GITHUB_WORKSPACE/app/build/outputs/apk/ 2>/dev/null || echo 'No apk output dir'
+        echo "=== Build dir structure ==="
+        ls -la $GITHUB_WORKSPACE/app/build/ 2>/dev/null || echo 'No build dir'
+
+    - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
-        name: CountBot-APKs
-        path: app/build/outputs/apk/
+        name: CountBot-Debug
+        path: app/build/outputs/apk/debug/
+        if-no-files-found: error
+        retention-days: 30
+
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: CountBot-Release
+        path: app/build/outputs/apk/release/
+        if-no-files-found: error
         retention-days: 30
