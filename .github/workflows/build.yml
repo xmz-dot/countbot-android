@@ -43,11 +43,18 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build all
-      run: ./gradlew assemble --stacktrace
+    - name: Build Debug APK
+      run: |
+        ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
+        echo "=== EXIT CODE: $? ==="
 
-    - name: Show APK tree
-      run: find app/build -name '*.apk' -type f 2>/dev/null | head -20
+    - name: Build Release APK
+      run: |
+        ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
+        echo "=== EXIT CODE: $? ==="
+
+    - name: Find APKs
+      run: find app/build -name '*.apk' -type f 2>/dev/null
 
     - name: Upload APKs
       uses: actions/upload-artifact@v4
