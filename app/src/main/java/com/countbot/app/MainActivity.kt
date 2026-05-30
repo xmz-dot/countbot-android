@@ -1,7 +1,14 @@
 package com.countbot.app
 
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -21,9 +28,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var errorLayout: LinearLayout
     private lateinit var btnRetry: MaterialButton
     private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
     companion object {
         private const val TARGET_URL = "http://127.0.0.1:8000"
+        private const val NOTIFICATION_CHANNEL_ID = "countbot_running"
+        private const val NOTIFICATION_ID = 1001
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -40,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         setupWebView()
         setupSwipeRefresh()
         setupRetryButton()
+        registerNetworkCallback()
+        createNotificationChannel()
 
         loadTargetUrl()
     }
@@ -180,10 +192,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private fun isServiceReachable(): Boolean {
@@ -232,7 +244,52 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun registerNetworkCallback() {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                runOnUiThread {
+                    if (errorLayout.visibility == View.VISIBLE) {
+                        hideError()
+                        loadTargetUrl()
+                    }
+                }
+            }
+            override fun onLost(network: Network) {
+                runOnUiThread {
+                    showError()
+                }
+            }
+        }
+        connectivityManager.registerNetworkCallback(request, networkCallback!!)
+    }
+
+    private fun unregisterNetworkCallback() {
+        networkCallback?.let {
+            val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+            connectivityManager.unregisterNetworkCallback(it)
+            networkCallback = null
+        }
+    }
+
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            "CountBot 运行中",
+            NotificationManager.IMPORTANCE_MIN
+        ).apply {
+            description = "CountBot 正在运行"
+            setShowBadge(false)
+        }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
     override fun onDestroy() {
+        unregisterNetworkCallback()
         webView.destroy()
         super.onDestroy()
     }
