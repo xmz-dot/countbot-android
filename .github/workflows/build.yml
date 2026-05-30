@@ -24,15 +24,6 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Verify Android SDK
-      run: |
-        echo "ANDROID_HOME=$ANDROID_HOME"
-        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-        ls -la $ANDROID_HOME/ 2>/dev/null || echo "ANDROID_HOME not found"
-        ls -la $ANDROID_SDK_ROOT/ 2>/dev/null || echo "ANDROID_SDK_ROOT not found"
-        which sdkmanager 2>/dev/null || echo "sdkmanager not found"
-        sdkmanager --list 2>/dev/null | head -20 || echo "sdkmanager failed"
-
     - name: Cache Gradle
       uses: actions/cache@v4
       with:
@@ -47,24 +38,22 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace --info 2>&1 | tail -100
+      run: ./gradlew assembleDebug --stacktrace
 
     - name: Build Release APK
-      if: success()
-      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -100
+      run: ./gradlew assembleRelease --stacktrace
+
+    - name: List APK files
+      run: find . -name '*.apk' -type f 2>/dev/null
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
-      if: always()
       with:
         name: CountBot-Debug
-        path: app/build/outputs/apk/debug/app-debug.apk
-        if-no-files-found: ignore
+        path: app/build/outputs/apk/debug/*.apk
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
-      if: success()
       with:
         name: CountBot-Release
-        path: app/build/outputs/apk/release/app-release.apk
-        if-no-files-found: ignore
+        path: app/build/outputs/apk/release/*.apk
