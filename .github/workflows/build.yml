@@ -49,16 +49,16 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
-    - name: Upload Debug APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: CountBot-Debug
-        path: app/build/outputs/apk/debug/
-        retention-days: 30
+    - name: Zip APKs
+      run: |
+        cd app/build/outputs/apk
+        zip -r /tmp/countbot-apks.zip debug/ release/
+        ls -lh /tmp/countbot-apks.zip
+        unzip -l /tmp/countbot-apks.zip
 
-    - name: Upload Release APK
+    - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
-        name: CountBot-Release
-        path: app/build/outputs/apk/release/
+        name: CountBot-APKs-v0.9.0
+        path: /tmp/countbot-apks.zip
         retention-days: 30
