@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="&#9888;"
+        android:text="⚠️"
         android:textSize="64sp"
         android:textColor="@color/colorPrimary" />
 
@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="无法连接到 CountBot"
+        android:text="@string/network_error"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:gravity="center"
-        android:text="请检查 CountBot 服务是否已启动，或确认网络连接正常。"
+        android:text="@string/no_network"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorSecondary" />
 
@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="重试"
+        android:text="@string/retry"
         android:textColor="@android:color/white" />
 
 </LinearLayout>

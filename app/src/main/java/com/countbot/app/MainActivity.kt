@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
 import android.webkit.*
 import android.widget.LinearLayout
@@ -130,9 +129,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupSwipeRefresh() {
         swipeRefresh.setColorSchemeResources(
-            android.R.color.holo_purple,
-            android.R.color.holo_blue_bright,
-            android.R.color.holo_green_light
+            R.color.primary,
+            R.color.accent
         )
         swipeRefresh.setOnRefreshListener {
             if (isNetworkAvailable()) {
@@ -177,21 +175,18 @@ class MainActivity : AppCompatActivity() {
         return capabilities != null
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (webView.canGoBack()) {
             webView.goBack()
-            return true
-        }
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        } else {
             AlertDialog.Builder(this)
-                .setTitle("退出 CountBot")
-                .setMessage("确定要退出吗？")
-                .setPositiveButton("退出") { _, _ -> finish() }
-                .setNegativeButton("取消", null)
+                .setTitle(R.string.exit_title)
+                .setMessage(R.string.exit_message)
+                .setPositiveButton(R.string.exit_confirm) { _, _ -> finish() }
+                .setNegativeButton(R.string.exit_cancel, null)
                 .show()
-            return true
         }
-        return super.onKeyDown(keyCode, event)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

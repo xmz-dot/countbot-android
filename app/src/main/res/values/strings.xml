@@ -4,4 +4,8 @@
     <string name="network_error">网络连接失败</string>
     <string name="retry">重试</string>
     <string name="no_network">请检查网络连接后重试</string>
+    <string name="exit_title">退出 CountBot</string>
+    <string name="exit_message">确定要退出吗？</string>
+    <string name="exit_confirm">退出</string>
+    <string name="exit_cancel">取消</string>
 </resources>
