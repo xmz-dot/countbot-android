@@ -27,11 +27,8 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Configure SDK
-      run: |
-        echo "sdk.dir=$ANDROID_HOME" > local.properties
-        echo "ANDROID_HOME=$ANDROID_HOME" >> local.properties
-        cat local.properties
+    - name: Configure local.properties
+      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
 
     - name: Accept Android SDK licenses
       run: yes | sdkmanager --licenses 2>/dev/null || true
@@ -54,21 +51,8 @@ jobs:
 
     - name: Build Debug APK
       run: |
-        echo "=== Starting assembleDebug ==="
-        echo "JAVA_HOME=$JAVA_HOME"
-        java -version 2>&1
-        echo "ANDROID_HOME=$ANDROID_HOME"
-        echo "=== local.properties ==="
-        cat local.properties
-        echo "=== Starting Gradle ==="
-        ./gradlew assembleDebug --stacktrace --info 2>&1 | tee /tmp/build.log
-        EXIT=${PIPESTATUS[0]}
-        echo "=== Gradle exit code: $EXIT ==="
-        if [ $EXIT -ne 0 ]; then
-          echo "=== Last 100 lines of build log ==="
-          tail -100 /tmp/build.log
-          exit $EXIT
-        fi
+        ./gradlew assembleDebug --stacktrace 2>&1 | tee /tmp/build.log
+        exit ${PIPESTATUS[0]}
 
     - name: Build Release APK
       run: |
