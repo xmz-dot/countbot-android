@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 机器人头部 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,40 L70,40 Q74,40 74,44 L74,62 Q74,66 70,66 L38,66 Q34,66 34,62 L34,44 Q34,40 38,40 Z" />
+
+    <!-- 左眼 -->
+    <path
+        android:fillColor="#6200EE"
+        android:pathData="M44,48 m-4,0 a4,4 0,1 1,8 0 a4,4 0,1 1,-8 0" />
+
+    <!-- 右眼 -->
+    <path
+        android:fillColor="#6200EE"
+        android:pathData="M64,48 m-4,0 a4,4 0,1 1,8 0 a4,4 0,1 1,-8 0" />
+
+    <!-- 嘴巴 -->
+    <path
+        android:fillColor="#6200EE"
+        android:pathData="M48,58 L60,58"
+        android:strokeWidth="3"
+        android:strokeColor="#6200EE" />
+
+    <!-- 左天线 -->
+    <path
+        android:fillColor="#03DAC5"
+        android:pathData="M46,36 L46,30"
+        android:strokeWidth="2"
+        android:strokeColor="#03DAC5" />
+    <path
+        android:fillColor="#03DAC5"
+        android:pathData="M46,30 m-3,0 a3,3 0,1 1,6 0 a3,3 0,1 1,-6 0" />
+
+    <!-- 右天线 -->
+    <path
+        android:fillColor="#03DAC5"
+        android:pathData="M62,36 L62,30"
+        android:strokeWidth="2"
+        android:strokeColor="#03DAC5" />
+    <path
+        android:fillColor="#03DAC5"
+        android:pathData="M62,30 m-3,0 a3,3 0,1 1,6 0 a3,3 0,1 1,-6 0" />
+
+</vector>
