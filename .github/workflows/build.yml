@@ -44,21 +44,28 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: |
-        ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
-        echo "=== EXIT CODE: $? ==="
+      run: ./gradlew assembleDebug --stacktrace 2>&1 | tail -200
 
     - name: Build Release APK
+      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
+
+    - name: Debug APK paths
       run: |
-        ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
-        echo "=== EXIT CODE: $? ==="
+        echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+        echo "PWD=$(pwd)"
+        find $GITHUB_WORKSPACE/app/build -name '*.apk' -type f 2>/dev/null
+        ls -la $GITHUB_WORKSPACE/app/build/outputs/apk/ 2>/dev/null || echo 'No apk dir'
 
-    - name: Find APKs
-      run: find app/build -name '*.apk' -type f 2>/dev/null
-
-    - name: Upload APKs
+    - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
-        name: CountBot-APKs
-        path: app/build/outputs/apk/
+        name: CountBot-Debug
+        path: ${{ github.workspace }}/app/build/outputs/apk/debug/
+        retention-days: 30
+
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: CountBot-Release
+        path: ${{ github.workspace }}/app/build/outputs/apk/release/
         retention-days: 30
