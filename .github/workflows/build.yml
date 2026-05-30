@@ -49,13 +49,17 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
-    - name: Find APK files
-      run: find . -name '*.apk' -type f -exec ls -lh {} \;
+    - name: Prepare APK artifacts
+      run: |
+        mkdir -p /tmp/apk-output
+        find . -name '*.apk' -type f -exec cp {} /tmp/apk-output/ \;
+        echo "=== APK files ==="
+        ls -lh /tmp/apk-output/
 
-    - name: Upload all APKs
+    - name: Upload APKs
       uses: actions/upload-artifact@v4
       with:
         name: CountBot-APKs
-        path: '**/*.apk'
+        path: /tmp/apk-output/*.apk
         if-no-files-found: error
         retention-days: 30
