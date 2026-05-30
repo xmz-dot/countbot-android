@@ -49,23 +49,14 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
-    - name: Debug APK paths
-      run: |
-        echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-        echo "PWD=$(pwd)"
-        find $GITHUB_WORKSPACE/app/build -name '*.apk' -type f 2>/dev/null
-        ls -la $GITHUB_WORKSPACE/app/build/outputs/apk/ 2>/dev/null || echo 'No apk dir'
-
     - name: Upload Debug APK
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: CountBot-Debug
-        path: ${{ github.workspace }}/app/build/outputs/apk/debug/
-        retention-days: 30
+        path: app/build/outputs/apk/debug/app-debug.apk
 
     - name: Upload Release APK
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: CountBot-Release
-        path: ${{ github.workspace }}/app/build/outputs/apk/release/
-        retention-days: 30
+        path: app/build/outputs/apk/release/app-release.apk
