@@ -27,8 +27,18 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Create local.properties
-      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+    - name: Debug SDK environment
+      run: |
+        echo "=== Environment ==="
+        echo "ANDROID_HOME=$ANDROID_HOME"
+        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+        echo "=== ANDROID_HOME contents ==="
+        ls -la $ANDROID_HOME/ 2>/dev/null || echo 'ANDROID_HOME not found or empty'
+        echo "=== sdkmanager ==="
+        which sdkmanager 2>/dev/null || echo 'sdkmanager not in PATH'
+        echo "=== local.properties ==="
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        cat local.properties
 
     - name: Accept Android SDK licenses
       run: yes | sdkmanager --licenses 2>/dev/null || true
