@@ -50,30 +50,13 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build Debug APK
-      run: |
-        ./gradlew assembleDebug --stacktrace > /tmp/debug.log 2>&1
-        echo "EXIT_CODE=$?"
-        tail -100 /tmp/debug.log
-
     - name: Build Release APK
-      run: |
-        ./gradlew assembleRelease --stacktrace > /tmp/release.log 2>&1
-        echo "EXIT_CODE=$?"
-        tail -100 /tmp/release.log
+      run: ./gradlew assembleRelease --stacktrace 2>&1 | tail -200
 
-    - name: Check build results
-      run: |
-        echo "=== Debug build exit code ==="
-        grep 'EXIT_CODE' /tmp/debug.log || echo 'No exit code found'
-        echo "=== Release build exit code ==="
-        grep 'EXIT_CODE' /tmp/release.log || echo 'No exit code found'
-        echo "=== APK search ==="
-        find $GITHUB_WORKSPACE -name '*.apk' 2>/dev/null || echo 'NO APK FOUND'
-
-    - name: Upload build logs
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: build-logs
-        path: /tmp/*.log
-        retention-days: 7
+        name: countbot-release-apk
+        path: app/build/outputs/apk/release/app-release.apk
+        if-no-files-found: error
+        retention-days: 30
